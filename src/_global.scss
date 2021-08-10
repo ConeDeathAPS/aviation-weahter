@@ -1,0 +1,44 @@
+/*
+Primary color definitions
+ */
+@function primary($opacity: 1) {
+  @return rgba(136, 136, 136, $opacity);
+}
+
+@function primary-light($opacity: 1) {
+  @return rgba(174, 174, 174, $opacity);
+}
+
+@function primary-dark($opacity: 1) {
+  @return rgba(96, 96, 96, $opacity);
+}
+
+/*
+Accent color definitions
+ */
+@function accent($opacity: 1) {
+  @return rgba(18, 28, 123, $opacity);
+}
+
+@function accent-light($opacity: 1) {
+  @return rgba(33, 43, 138, $opacity);
+}
+
+@function accent-dark($opacity: 1) {
+  @return rgba(11, 20, 108, $opacity);
+}
+
+/*
+Ancillary and util colors
+ */
+@function text-color($opacity: 1) {
+  @return rgba(5, 7, 16, $opacity);
+}
+
+@function warn($opacity: 1) {
+  @return rgba(142, 0, 0, $opacity);
+}
+
+@function caution($opacity: 1) {
+  @return rgba(142, 79, 0, $opacity);
+}
