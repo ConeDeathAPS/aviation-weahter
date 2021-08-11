@@ -33,9 +33,7 @@ p, a, li, span {
 a {
   text-decoration: none;
   color: global.accent(1);
-  transition: color;
-  transition-duration: 200ms;
-  transition-timing-function: ease-in-out;
+  @include global.standardColorAnimate();
   &:hover {
     color: global.accent-dark(1);
   }
@@ -48,7 +46,49 @@ h1, h2, h3, h4, h5 {
 /*
 Home Component styling
  */
+#home {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  h1 {
+    text-align: center;
+    width: 100%;
+  }
+  ul {
+    padding-left: 0;
+    list-style-type: none;
+    flex: 1;
+    li {
+      padding: 8px 12px;
+      font-size: 16px;
+      background-color: global.accent(1);
+      color: white;
+      cursor: pointer;
+      @include global.standardBackgroundColorAnimate();
+      margin: 4px 0;
+      &:hover {
+        background-color: global.accent-dark(1);
+      }
+    }
+  }
+}
 
-h1 {
-  text-align: center;
+/*
+LocationDetails Component styling
+ */
+
+#location-detail {
+  display: flex;
+  flex: 3;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin: 10px;
+  background-color: global.primary-light(1);
+  border: 3px solid global.primary-dark(1);
+  border-radius: 8px;
+  padding: 12px;
 }

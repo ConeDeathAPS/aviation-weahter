@@ -42,3 +42,18 @@ Ancillary and util colors
 @function caution($opacity: 1) {
   @return rgba(142, 79, 0, $opacity);
 }
+
+/*
+Animation Mixins
+ */
+@mixin standardColorAnimate {
+  transition: color;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+@mixin standardBackgroundColorAnimate {
+  transition: background-color;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}

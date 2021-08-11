@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "test",
-    "build-client": "webpack --watch --config webpack-client.config.js --mode=development",
-    "build-server": "webpack --watch --config webpack-server.config.js --mode=development",
+    "build-client": "webpack --config webpack-client.config.js --mode=development",
+    "build-server": "webpack --config webpack-server.config.js --mode=development",
     "start": "nodemon dist/server.js",
     "sass": "sass src/client/app.scss dist/app.css"
   },
