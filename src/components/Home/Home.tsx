@@ -1,10 +1,15 @@
-import React from 'react';
+import React, {ChangeEvent} from 'react';
 import axios, {AxiosResponse} from 'axios';
 import {Location, Locations} from "../../types/Locations";
 import HomeProps from "./HomeProps";
 import LocationDetails from "../LocationDetail/LocationDetail";
 
-declare type HomeComponentState = { locations: Locations, loadingLocations: boolean, selectedLocation: Location };
+interface HomeComponentState {
+    locations: Location[];
+    filteredLocations: Location[];
+    loadingLocations: boolean;
+    selectedLocation: Location
+}
 
 export default class HomeComponent extends React.Component<HomeProps, HomeComponentState> {
 
@@ -12,6 +17,7 @@ export default class HomeComponent extends React.Component<HomeProps, HomeCompon
         super(props);
         this.state = {
             locations: undefined,
+            filteredLocations: undefined,
             loadingLocations: true,
             selectedLocation: undefined,
         };
@@ -32,7 +38,10 @@ export default class HomeComponent extends React.Component<HomeProps, HomeCompon
                 }
             }
         ).then((response: AxiosResponse<{ locations:  Locations }>) => {
-            this.setState({ locations: response.data.locations, loadingLocations: false });
+            const locationsArray: Location[] = Object.entries(response.data.locations) // Extract entries
+                .filter(entry => entry[1] !== null) // Remove nulls
+                .map(entry => new Location(entry[0], entry[1])); // Convert to Location instances
+            this.setState({ locations: locationsArray, filteredLocations: locationsArray, loadingLocations: false });
         })
         .catch((err) => {
             console.error('Unexpected error when fetching locations', err);
@@ -40,31 +49,37 @@ export default class HomeComponent extends React.Component<HomeProps, HomeCompon
         });
     }
 
-    onLocationSelect(id: string, display: string): void {
-        const location: Location = {
-            locationId: id,
-            locationName: display
-        }
+    onLocationSelect(location: Location): void {
         this.setState({ selectedLocation: location });
     }
+
+    onListFilterChange(e: ChangeEvent<HTMLInputElement>) {
+        this.setState({
+            filteredLocations: this.state.locations.filter(location => location.locationName.match(e.target.value))
+        });
+    }
+
     render() {
         return (
             <section id={'home'}>
                 <h1>Aviation Weather</h1>
                 {this.state.loadingLocations &&
-                <p>Loading locations...</p>
+                    <p className={'loader'}>Loading locations...</p>
                 }
                 { !this.state.loadingLocations && this.state.locations != undefined &&
-                <ul>
-                    {this.state.locations && Array.from(Object.entries(this.state.locations)).map(entry => {
-                        const [code, display] = entry;
-                        if (display != null) return <li key={code} onClick={() => this.onLocationSelect(code, display)}>{code} -- {display}</li>
-                    })}
-                </ul>
+                    <div id={'location-list'}>
+                        <input placeholder={'Filter locations by name...'} type={'text'} onChange={(e) => this.onListFilterChange(e)} />
+                        <ul>
+                            {this.state.filteredLocations && this.state.filteredLocations.map(location =>
+                                <li key={location.locationId} onClick={() => this.onLocationSelect(location)}>
+                                        {location.locationId} -- {location.locationName}
+                                </li>
+                            )}
+                        </ul>
+                    </div>
+
                 }
-                {this.state.selectedLocation &&
-                    <LocationDetails location={this.state.selectedLocation} />
-                }
+                <LocationDetails location={this.state.selectedLocation} />
             </section>
         );
     }

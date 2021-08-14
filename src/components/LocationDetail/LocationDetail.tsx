@@ -1,63 +1,77 @@
-import React from 'react';
+import React, {SyntheticEvent, ChangeEvent} from 'react';
 import axios, {AxiosResponse} from 'axios';
 import LocationDetailProps from "./LocationDetailProps";
-import {ProductInfo, ProductInfoResponse} from "../../types/ProductInfo";
-import {Location} from "../../types/Locations";
+import {ProductInfo} from "../../types/ProductInfo";
+import ProductDisplay from "../ProductDisplay/ProductDisplay";
+import WeatherApiResponse from "../../types/WeatherApiResponse";
 
-class LocationDetailState {
-    location: Location;
+interface LocationDetailState {
     loadingAvailableProducts: boolean;
     availableProducts: ProductInfo[];
+    selectedProduct: ProductInfo;
 }
 
 export default class LocationDetails extends React.Component<LocationDetailProps, LocationDetailState> {
     constructor(props: LocationDetailProps) {
         super(props);
         this.state = {
-            location: this.props.location,
-            loadingAvailableProducts: true,
+            loadingAvailableProducts: !!this.props.location,
             availableProducts: undefined,
+            selectedProduct: undefined,
         };
         this.fetchAvailableProducts = this.fetchAvailableProducts.bind(this);
     }
 
-    componentDidMount() {
-        this.fetchAvailableProducts();
+    componentDidMount(): void {
+        // Nothing here
     }
 
-    onProductSelected(productCode: string): void {
-        console.log('Selected product:', productCode);
+    componentDidUpdate(previousProps: LocationDetailProps): void {
+        if (!this.props.location) return;
+        if (!previousProps.location ||
+            (previousProps.location.locationId !== this.props.location.locationId)
+        ) this.fetchAvailableProducts();
     }
 
-    fetchAvailableProducts() {
+    onProductSelectionChanged(e: ChangeEvent<HTMLSelectElement>): void {
+        if (this.state.selectedProduct && this.state.selectedProduct.productCode === e.target.value) return;
+        const selectedProduct = this.state.availableProducts.find(product => product.productCode === e.target.value);
+        this.setState({ selectedProduct });
+    }
+
+    fetchAvailableProducts(): void {
+        this.setState({loadingAvailableProducts: true});
         axios.get(
             `https://api.weather.gov/products/locations/${this.props.location.locationId}/types`,
             {
-                headers:{
+                headers: {
                     'accept': 'application/ld+json',
                     'User-Agent': 'sorensenapaul@gmail.com'
                 }
-            }).then((response: AxiosResponse<ProductInfoResponse>) => {
-                console.log('Available products response:', response);
-                this.setState({ loadingAvailableProducts: false, availableProducts: response.data["@graph"]});
-            }).catch((err) => {
-                console.error(`Error getting products for location ID ${this.props.location.locationId}`);
-                this.setState({ loadingAvailableProducts: false });
-            })
+            }).then((response: AxiosResponse<WeatherApiResponse<ProductInfo>>) => {
+            this.setState({loadingAvailableProducts: false, availableProducts: response.data["@graph"]});
+        }).catch((err) => {
+            console.error(`Error getting products for location ID ${this.props.location.locationId}`);
+            this.setState({loadingAvailableProducts: false});
+        });
     }
 
     render() {
         return (<section id={'location-detail'}>
-            <h3>{this.props.location.locationName}</h3>
-            { this.state.loadingAvailableProducts &&
-                <p>Loading products...</p>
+            <h3>{this.props.location ? this.props.location.locationName : 'Pick a location'}</h3>
+            {this.state.loadingAvailableProducts &&
+            <p className={'loader'}>Loading products...</p>
             }
             {!this.state.loadingAvailableProducts && this.state.availableProducts &&
-                <ul>
-                    {this.state.availableProducts.map((product: ProductInfo) =>
-                        <button key={product.productCode} onClick={() => this.onProductSelected(product.productCode)}>{product.productName}</button>
-                    )}
-                </ul>
+            <select onChange={(e: ChangeEvent<HTMLSelectElement>) => this.onProductSelectionChanged(e)} defaultValue={undefined}>
+                <option key={'NONE'} value={undefined}>--NONE--</option>
+                {this.state.availableProducts.map((product: ProductInfo) =>
+                    <option key={product.productCode} value={product.productCode}>{product.productName}</option>
+                )};
+            </select>
+            }
+            {this.state.selectedProduct && this.props.location &&
+                <ProductDisplay location={this.props.location} product={this.state.selectedProduct}/>
             }
         </section>);
     }

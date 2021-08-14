@@ -1,5 +1,5 @@
 import {Location} from "../../types/Locations";
 
-export default class LocationDetailProps {
+export default interface LocationDetailProps {
     location: Location;
 }

@@ -1,3 +1,3 @@
-export default class HomeProps {
+export default interface HomeProps {
     message: string;
 }

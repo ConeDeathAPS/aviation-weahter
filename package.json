@@ -6,9 +6,10 @@
   "scripts": {
     "test": "test",
     "build-client": "webpack --config webpack-client.config.js --mode=development",
+    "build-all": "webpack --config webpack-client.config.js --mode=development && webpack --config webpack-server.config.js --mode=development",
     "build-server": "webpack --config webpack-server.config.js --mode=development",
     "start": "nodemon dist/server.js",
-    "sass": "sass src/client/app.scss dist/app.css"
+    "sass": "sass src/app.scss dist/app.css"
   },
   "repository": {
     "type": "git",
